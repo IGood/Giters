@@ -1,4 +1,6 @@
-﻿#include "pch.h"
+﻿// Copyright © Ian Good
+
+#include "pch.h"
 #include <vector>
 #include "../Giters/Giters/Where.h"
 

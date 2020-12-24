@@ -1,6 +1,6 @@
 # Giters - _LINQ style iterators for C++_
 
-The goal is to write C++ code similar to LINQ in C#.<br>
+The goal is to write C++ code similar to [LINQ](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/) in C# (using [method syntax](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/query-syntax-and-method-syntax-in-linq)).<br>
 Which is to say, transforming and filtering elements in a sequence using a fluent syntax.
 
 C# accomplishes this via [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods).<br>
@@ -28,30 +28,100 @@ auto squaredEvens = myNumbers | Where(&IsEven) | Select(&Square) | ToVector();
 
 ----
 
+## Giters
+
+This library implements several projections, filters, & other utilities.<br>
+Projections generally take a **selector** as a parameter - a function that takes an element as the input value & returns some new value.<br>
+Filters generally take a **predicate** as a parameter - a function that takes an element & returns a value indicating whether that element should be included in the result range.
+
+- `Consume` - iterates the entire range
+- `FirstOrDefault` - gets the first element in the range; returns a default-constructed object if the range is empty
+- `ForEach` - executes a function for each element; consumes the range
+- `NonNull` - keeps elements where `element != nullptr`
+- `Select` - projects each element into a new value
+- `ToVector` - creates a new `std::vector<>` containing the elements in the range
+- `Visit` - executes a function for each element
+- `Where` - keeps elements where the predicate returns `true`
+
+Creating an iterable range object using Giters does not perform any iterations itself.<br>
+The evaluation of the range is said to be **lazy** & the range must be _consumed_ in some way to process the results.
+
+For example, this code creates a range object, `foo`, that can be iterated, but no elements have been inspected or transformed yet:
+
+```cpp
+int myNumbers[] = { -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+int numInspected = 0;
+int numTransformed = 0;
+auto foo = myNumbers
+    | Where([&numInspected](int n) { ++numInspected; return n > 0; })
+    | Select([&numTransformed](int n) { ++numTransformed; return n * 2; });
+// `numInspected` and `numTransformed` are both zero because `foo` has not been consumed.
+```
+
+The object `foo` can be consumed in various ways & the Giter operations will be performed ***each time*** as necessary.
+
+```cpp
+//                                                  numInspected =  0, numTransformed =  0
+for (int n : foo) { }                            // numInspected = 12, numTransformed =  8
+foo | Consume();                                 // numInspected = 24, numTransformed = 16
+foo | ForEach([](int n) { /* todo: print n */ });// numInspected = 36, numTransformed = 24
+std::vector<int> keepers = foo | ToVector();     // numInspected = 48, numTransformed = 32, keepers = { 2, 4, 6, 8, 10, 12, 14, 16 }
+int first = foo | FirstOrDefault();              // numInspected = 53, numTransformed = 33, first = 2
+```
+
+In the last line above, `numInspected` changes from 48 to 53 & `numTransformed` from 32 to 33 because `FirstOrDefault` stops iterating after it finds its first match (in this case, the first number greater than zero).
+
+----
+
+## Example
+
+```cpp
+// Giters
+std::vector<std::string> names = widgets
+    | NonNull()
+    | Visit([](const Widget* w) { LogWidgetState(*w); })
+    | Where([](const Widget* w) { return w->IsEnabled(); })
+    | Select[](const Widget* w) { return w->GetName(); })
+    | ToVector();
+
+// Typical C++
+std::vector<std::string> names;
+for (const Widget* w : widgets) {
+    if (w != nullptr) {
+        LogWidgetState(*w);
+        if (w->IsEnabled()) {
+            names.push_back(w->GetName());
+        }
+    }
+}
+```
+
+----
+
 ## Implementation Concepts & Range-Based `for` Loops
 
 From [cppreference.com](https://en.cppreference.com/w/cpp/language/range-for), a **range-based for loop** looks like this...
 
 ```cpp
-// Syntax
 for (range_declaration : range_expression) loop_statement
+```
 
-// Example
+So our code like this...
+
+```cpp
 for (const Widget& w : GetWidgets()) {
     w.PrintName();
 }
 ```
 
-...and expands to something like this...
+...expands to something like this...
 
 ```cpp
-// Example
 {
     auto&& __range = GetWidgets();
     auto __begin = std::begin(__range);
     auto __end = std::end(__range);
-    for (; __begin != __end; ++__begin)
-    {
+    for (; __begin != __end; ++__begin) {
         const Widget& w = *__begin;
         w.PrintName();
     }
@@ -88,7 +158,7 @@ That doesn't sound so hard 😀<br>
 Here is pseudo-code that illustrates the basic outline for implementing a "non-null" filter (members & function implementations have been omitted for brevity):
 
 ```cpp
-// a "token" type used with operator| (see below)
+// a "token" type used with `operator|` (see below)
 struct NonNull { };
 
 // operator that accepts any "range" object on the left & our `NonNull` token on the right

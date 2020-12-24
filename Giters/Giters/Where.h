@@ -24,42 +24,33 @@ namespace Giters
 					} while (sourceIter != sourceEnd && !std::invoke(predicate, *sourceIter));
 				}
 
-				Iter_t(TSeq& source, TPredicate&& inPredicate)
+				Iter_t(TSeq& source, TPredicate& inPredicate)
 					: sourceIter(std::begin(source))
 					, sourceEnd(std::end(source))
-					, predicate(std::forward<TPredicate>(inPredicate))
+					, predicate(inPredicate)
 				{
-				}
-
-				Iter_t(const Iter_t& other)
-					: sourceIter(other.sourceIter)
-					, sourceEnd(other.sourceEnd)
-					, predicate(std::forward<TPredicate>(other.predicate))
-				{
+					while (sourceIter != sourceEnd && !std::invoke(predicate, *sourceIter))
+					{
+						++sourceIter;
+					}
 				}
 
 				SourceIter_t sourceIter;
 				SourceEnd_t sourceEnd;
-				TPredicate&& predicate;
+				TPredicate& predicate;
 			};
 
-			WhereImpl(TSeq& source, TPredicate&& predicate)
-				: iter(source, std::forward<TPredicate>(predicate))
+			WhereImpl(TSeq& inSource, TPredicate&& inPredicate)
+				: source(inSource)
+				, predicate(std::forward<TPredicate>(inPredicate))
 			{
-				if (iter != iter.sourceEnd && !std::invoke(iter.predicate, *iter))
-				{
-					++iter;
-				}
 			}
 
-			Iter_t begin() const
-			{
-				return iter;
-			}
+			Iter_t begin() { return Iter_t(source, predicate); }
+			SourceEnd_t end() const { return std::end(source); }
 
-			SourceEnd_t end() const { return iter.sourceEnd; }
-
-			Iter_t iter;
+			TSeq& source;
+			TPredicate predicate;
 		};
 
 		template <typename TPredicate>
@@ -70,7 +61,7 @@ namespace Giters
 			{
 			}
 
-			TPredicate&& predicate;
+			TPredicate predicate;
 		};
 	}
 

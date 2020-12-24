@@ -1,4 +1,6 @@
-﻿#include "pch.h"
+﻿// Copyright © Ian Good
+
+#include "pch.h"
 #include <functional>
 #include <vector>
 #include <xstring>

@@ -18,34 +18,29 @@ namespace Giters
 				auto operator*() { return std::invoke(selector, *sourceIter); }
 				void operator++() { ++sourceIter; }
 
-				Iter_t(TSeq& source, TSelector&& inSelector)
+				Iter_t(TSeq& source, TSelector& inSelector)
 					: sourceIter(std::begin(source))
 					, sourceEnd(std::end(source))
-					, selector(std::forward<TSelector>(inSelector))
-				{
-				}
-
-				Iter_t(const Iter_t& other)
-					: sourceIter(other.sourceIter)
-					, sourceEnd(other.sourceEnd)
-					, selector(std::forward<TSelector>(other.selector))
+					, selector(inSelector)
 				{
 				}
 
 				SourceIter_t sourceIter;
 				SourceEnd_t sourceEnd;
-				TSelector&& selector;
+				TSelector& selector;
 			};
 
-			SelectImpl(TSeq& source, TSelector&& selector)
-				: iter(source, std::forward<TSelector>(selector))
+			SelectImpl(TSeq& inSource, TSelector&& inSelector)
+				: source(inSource)
+				, selector(std::forward<TSelector>(inSelector))
 			{
 			}
 
-			Iter_t begin() const { return iter; }
-			SourceEnd_t end() const { return iter.sourceEnd; }
+			Iter_t begin() { return Iter_t(source, selector); }
+			SourceEnd_t end() const { return std::end(source); }
 
-			Iter_t iter;
+			TSeq& source;
+			TSelector selector;
 		};
 
 		template <typename TSelector>
@@ -56,7 +51,7 @@ namespace Giters
 			{
 			}
 
-			TSelector&& selector;
+			TSelector selector;
 		};
 	}
 
