@@ -7,12 +7,12 @@ namespace Giters
 	struct Consume
 	{
 	};
+}
 
-	template <typename TSeq>
-	void operator|(TSeq&& source, Consume)
+template <typename TSeq>
+void operator|(TSeq&& source, Giters::Consume)
+{
+	for (auto&& elem : source)
 	{
-		for (auto&& elem : source)
-		{
-		}
 	}
 }

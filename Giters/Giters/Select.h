@@ -60,10 +60,10 @@ namespace Giters
 	{
 		return GitersImpl::Select_t<TSelector>(std::forward<TSelector>(selector));
 	}
+}
 
-	template <typename TSeq, typename TSelector>
-	auto operator|(TSeq&& source, GitersImpl::Select_t<TSelector>&& selector)
-	{
-		return GitersImpl::SelectImpl<TSeq, TSelector>(source, std::forward<TSelector>(selector.selector));
-	}
+template <typename TSeq, typename TSelector>
+auto operator|(TSeq&& source, Giters::GitersImpl::Select_t<TSelector>&& selector)
+{
+	return Giters::GitersImpl::SelectImpl<TSeq, TSelector>(source, std::forward<TSelector>(selector.selector));
 }

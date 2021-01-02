@@ -4,7 +4,9 @@
 #include <vector>
 #include "../Giters/Giters.h"
 
-using namespace Giters;
+using Giters::NonNull;
+using Giters::Select;
+using Giters::ToVector;
 
 class NonNullTest : public ::testing::Test {
 protected:

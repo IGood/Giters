@@ -70,10 +70,10 @@ namespace Giters
 	{
 		return GitersImpl::Where_t<TPredicate>(std::forward<TPredicate>(predicate));
 	}
+}
 
-	template <typename TSeq, typename TPredicate>
-	auto operator|(TSeq&& source, GitersImpl::Where_t<TPredicate>&& predicate)
-	{
-		return GitersImpl::WhereImpl<TSeq, TPredicate>(source, std::forward<TPredicate>(predicate.predicate));
-	}
+template <typename TSeq, typename TPredicate>
+auto operator|(TSeq&& source, Giters::GitersImpl::Where_t<TPredicate>&& predicate)
+{
+	return Giters::GitersImpl::WhereImpl<TSeq, TPredicate>(source, std::forward<TPredicate>(predicate.predicate));
 }

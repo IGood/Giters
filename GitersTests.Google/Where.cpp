@@ -4,7 +4,7 @@
 #include <vector>
 #include "../Giters/Giters/Where.h"
 
-using namespace Giters;
+using Giters::Where;
 
 class WhereTest : public ::testing::Test {
 protected:
