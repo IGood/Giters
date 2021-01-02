@@ -37,7 +37,8 @@ Filters generally take a **predicate** as a parameter - a function that takes an
 - `Consume` - iterates the entire range
 - `FirstOrDefault` - gets the first element in the range; returns a default-constructed object if the range is empty
 - `ForEach` - executes a function for each element; consumes the range
-- `NonNull` - keeps elements where `element != nullptr`
+- `NonNull` - keeps elements where `element != nullptr` & yields pointers
+- `NonNullRef` - keeps elements where `element != nullptr` & yields references
 - `Select` - projects each element into a new value
 - `ToVector` - creates a new `std::vector<>` containing the elements in the range
 - `Visit` - executes a function for each element
@@ -155,21 +156,27 @@ We see that we need to implement the following pieces:
    1. `operator++` to advance the iterator
 
 That doesn't sound so hard 😀<br>
-Here is pseudo-code that illustrates the basic outline for implementing a "non-null" filter (members & function implementations have been omitted for brevity):
+Here is pseudo-code that illustrates the basic outline for implementing a "non-null to ref" Giter that yields references to elements that are not null (members & function implementations have been omitted for brevity):
 
 ```cpp
-// a "token" type used with `operator|` (see below)
-struct NonNull { };
+// Goal: Transform a range of pointers into a range of references (iff a pointer is not null).
+// Example: If a pointer is not null, then double the value.
+for (int* p : myPointers) { if (p != nullptr) { (*p) *= 2; } } // hand-written style
+for (int& r : myPointers | NonNullRef()) { r *= 2; } // Giters style
 
-// operator that accepts any "range" object on the left & our `NonNull` token on the right
+// Giters Implementation:
+// a "token" type used with `operator|` (see below)
+struct NonNullRef { };
+
+// operator that accepts any "range" object on the left & our `NonNullRef` token on the right
 template <typename TSource>
-auto operator|(TSource& source, NonNull) {
-    return NonNullRange_t<TSource>(source);
+auto operator|(TSource& source, NonNullRef) {
+    return NonNullRefRange_t<TSource>(source);
 }
 
 // the "__range" type that can be passed to `std::begin()` and `std::end()`
 template <typename TSource>
-struct NonNullRange_t {
+struct NonNullRefRange_t {
     Iter_t begin() { return Iter_t(source); } // creates an iterator that skips over null values in the source range
     SourceEnd_t end() { return std::end(source); } // returns the "__end" object that we compare against to check termination
     TSource& source; // reference to the original/input/source range
@@ -181,7 +188,7 @@ struct NonNullRange_t {
     struct Iter_t {
         Iter_t(TSource& source); // initialize this iterator by advancing to the first non-null value in the range
         bool operator!=(const SourceEnd_t& end); // returns whether this iterator has reached the end of the range
-        auto operator*(); // returns the current value of this iterator
+        auto& operator*(); // returns the current value of this iterator - dereferences a pointer & returns a reference
         void operator++(); // advance to the next non-null value in the range
     };
 };
