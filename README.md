@@ -142,8 +142,8 @@ for (Widget* w : widgets) {
 }
 
 // B (using Giters)
-for (Widget* w : widgets | NonNull()) {
-    w->Refresh();
+for (Widget& w : widgets | NonNullRef()) {
+    w.Refresh();
 }
 ```
 
@@ -159,12 +159,6 @@ That doesn't sound so hard 😀<br>
 Here is pseudo-code that illustrates the basic outline for implementing a "non-null to ref" Giter that yields references to elements that are not null (members & function implementations have been omitted for brevity):
 
 ```cpp
-// Goal: Transform a range of pointers into a range of references (iff a pointer is not null).
-// Example: If a pointer is not null, then double the value.
-for (int* p : myPointers) { if (p != nullptr) { (*p) *= 2; } } // hand-written style
-for (int& r : myPointers | NonNullRef()) { r *= 2; } // Giters style
-
-// Giters Implementation:
 // a "token" type used with `operator|` (see below)
 struct NonNullRef { };
 
