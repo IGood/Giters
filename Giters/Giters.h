@@ -6,6 +6,7 @@
 #include "Giters/FirstOrDefault.h"
 #include "Giters/ForEach.h"
 #include "Giters/NonNull.h"
+#include "Giters/NonNullRef.h"
 #include "Giters/Select.h"
 #include "Giters/ToVector.h"
 #include "Giters/Visit.h"

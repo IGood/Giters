@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="GiterBenchmarks.cpp" />
     <ClCompile Include="NonNull.cpp" />
+    <ClCompile Include="NonNullRef.cpp" />
     <ClCompile Include="SortRandInts.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

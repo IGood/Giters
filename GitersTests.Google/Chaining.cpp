@@ -96,7 +96,9 @@ TEST(Chaining, ReuseRangeObject) {
 	EXPECT_EQ(numInspected, 0);
 	EXPECT_EQ(numKept, 0);
 
-	for (int n : range) {}
+	for (int n : range) {
+		EXPECT_GT(n, 0);
+	}
 	EXPECT_EQ(numInspected, 12);
 	EXPECT_EQ(numKept, 8);
 
@@ -118,4 +120,45 @@ TEST(Chaining, ReuseRangeObject) {
 	EXPECT_EQ(numInspected, 53);
 	EXPECT_EQ(numKept, 33);
 	EXPECT_EQ(first, 2);
+}
+
+TEST(Chaining, Widgets) {
+	class Widget
+	{
+	public:
+		Widget(std::string inName, bool inIsValid)
+			: name(inName)
+			, isValid(inIsValid)
+		{
+		}
+
+		const std::string& GetName() const { return name; }
+		bool IsValid() const { return isValid; }
+
+		static void LogWidgetState(const Widget& w) {
+			// todo?
+		}
+
+	private:
+		std::string name;
+		bool isValid = false;
+	};
+
+	auto widgets = {
+		Widget{"foo", false},
+		Widget{"bar", false},
+		Widget{"blah", true},
+	};
+
+	auto pointers = widgets | ToVector([](const auto& w) { return &w; });
+
+	auto names = pointers
+		| NonNull()
+		| Select([](const auto* w) -> auto& { return *w; })
+		| Visit(&Widget::LogWidgetState)
+		| Where(&Widget::IsValid)
+		| ToVector(&Widget::GetName);
+
+	std::vector<std::string> expectedNames = { "blah" };
+	EXPECT_EQ(names, expectedNames);
 }

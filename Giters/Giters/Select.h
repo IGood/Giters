@@ -9,14 +9,14 @@ namespace Giters
 		template <typename TSeq, typename TSelector>
 		struct SelectImpl
 		{
-			using SourceIter_t = decltype(std::begin(std::declval<TSeq>()));
-			using SourceEnd_t = decltype(std::end(std::declval<TSeq>()));
+			using SourceIter_t = decltype(std::begin(std::declval<TSeq&>()));
+			using SourceEnd_t = decltype(std::end(std::declval<TSeq&>()));
 
 			struct Iter_t
 			{
-				bool operator!=(const SourceEnd_t& end) const { return sourceIter != end; }
-				auto operator*() { return std::invoke(selector, *sourceIter); }
-				void operator++() { ++sourceIter; }
+				SourceIter_t sourceIter;
+				SourceEnd_t sourceEnd;
+				TSelector& selector;
 
 				Iter_t(TSeq& source, TSelector& inSelector)
 					: sourceIter(std::begin(source))
@@ -25,9 +25,9 @@ namespace Giters
 				{
 				}
 
-				SourceIter_t sourceIter;
-				SourceEnd_t sourceEnd;
-				TSelector& selector;
+				bool operator!=(const SourceEnd_t& end) const { return sourceIter != end; }
+				auto operator*() -> decltype(std::invoke(selector, *sourceIter)) { return std::invoke(selector, *sourceIter); }
+				void operator++() { ++sourceIter; }
 			};
 
 			SelectImpl(TSeq& inSource, TSelector&& inSelector)

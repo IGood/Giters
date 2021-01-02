@@ -21,6 +21,7 @@ public:
 
 	void iterate(const std::vector<int>& collection) {
 		for (int n : collection) {
+			celero::DoNotOptimizeAway(n);
 		}
 	}
 

@@ -23,6 +23,7 @@ protected:
 
 	void Iterate(const std::vector<int>& collection) {
 		for (int n : collection) {
+			benchmark::DoNotOptimize(n);
 		}
 	}
 

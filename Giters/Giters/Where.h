@@ -9,8 +9,8 @@ namespace Giters
 		template <typename TSeq, typename TPredicate>
 		struct WhereImpl
 		{
-			using SourceIter_t = decltype(std::begin(std::declval<TSeq>()));
-			using SourceEnd_t = decltype(std::end(std::declval<TSeq>()));
+			using SourceIter_t = decltype(std::begin(std::declval<TSeq&>()));
+			using SourceEnd_t = decltype(std::end(std::declval<TSeq&>()));
 
 			struct Iter_t
 			{

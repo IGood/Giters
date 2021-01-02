@@ -151,6 +151,7 @@
     <ClCompile Include="Chaining.cpp" />
     <ClCompile Include="GiterBenchmarks.cpp" />
     <ClCompile Include="NonNull.cpp" />
+    <ClCompile Include="NonNullRef.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

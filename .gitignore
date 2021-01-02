@@ -2,6 +2,7 @@
 .vs/
 .vscode/
 *.user
+*.args.json
 
 # dependencies
 packages/
