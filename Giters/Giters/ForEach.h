@@ -23,13 +23,13 @@ namespace Giters
 	{
 		return GitersImpl::ForEach_t<TVisitor>(std::forward<TVisitor>(visitor));
 	}
+}
 
-	template <typename TSeq, typename TVisitor>
-	void operator|(TSeq&& source, GitersImpl::ForEach_t<TVisitor>&& visitor)
+template <typename TSeq, typename TVisitor>
+void operator|(TSeq&& source, Giters::GitersImpl::ForEach_t<TVisitor>&& visitor)
+{
+	for (auto&& elem : source)
 	{
-		for (auto&& elem : source)
-		{
-			std::invoke(visitor.visitor, elem);
-		}
+		std::invoke(visitor.visitor, elem);
 	}
 }

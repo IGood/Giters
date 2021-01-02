@@ -70,10 +70,10 @@ namespace Giters
 	{
 		return GitersImpl::Visit_t<TVisitor>(std::forward<TVisitor>(visitor));
 	}
+}
 
-	template <typename TSeq, typename TVisitor>
-	auto operator|(TSeq&& source, GitersImpl::Visit_t<TVisitor>&& visitor)
-	{
-		return GitersImpl::VisitImpl<TSeq, TVisitor>(source, std::forward<TVisitor>(visitor.visitor));
-	}
+template <typename TSeq, typename TVisitor>
+auto operator|(TSeq&& source, Giters::GitersImpl::Visit_t<TVisitor>&& visitor)
+{
+	return Giters::GitersImpl::VisitImpl<TSeq, TVisitor>(source, std::forward<TVisitor>(visitor.visitor));
 }

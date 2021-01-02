@@ -6,7 +6,7 @@
 #include <xstring>
 #include "../Giters/Giters/FirstOrDefault.h"
 
-using namespace Giters;
+using Giters::FirstOrDefault;
 
 struct Widget
 {

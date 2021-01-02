@@ -32,22 +32,6 @@ namespace Giters
 		return GitersImpl::ToVector_t{ initialCapacity };
 	}
 
-	template <typename TSeq>
-	auto operator|(TSeq&& source, GitersImpl::ToVector_t&& toVector)
-	{
-		using Elem_t = std::remove_reference_t<decltype(*std::begin(source))>;
-
-		std::vector<Elem_t> vector;
-		vector.reserve(toVector.initialCapacity);
-
-		for (auto&& elem : source)
-		{
-			vector.push_back(elem);
-		}
-
-		return vector;
-	}
-
 	template <typename TSelector>
 	auto ToVector(TSelector&& selector)
 	{
@@ -59,20 +43,36 @@ namespace Giters
 	{
 		return GitersImpl::ToVectorSelect_t<TSelector>(initialCapacity, std::forward<TSelector>(selector));
 	}
+}
 
-	template <typename TSeq, typename TSelector>
-	auto operator|(TSeq&& source, GitersImpl::ToVectorSelect_t<TSelector>&& selector)
+template <typename TSeq>
+auto operator|(TSeq&& source, Giters::GitersImpl::ToVector_t&& toVector)
+{
+	using Elem_t = std::remove_reference_t<decltype(*std::begin(source))>;
+
+	std::vector<Elem_t> vector;
+	vector.reserve(toVector.initialCapacity);
+
+	for (auto&& elem : source)
 	{
-		using Elem_t = std::remove_const_t<std::remove_reference_t<decltype(std::invoke(selector.selector, *std::begin(source)))>>;
-
-		std::vector<Elem_t> vector;
-		vector.reserve(selector.initialCapacity);
-
-		for (auto&& elem : source)
-		{
-			vector.push_back(std::invoke(selector.selector, elem));
-		}
-
-		return vector;
+		vector.push_back(elem);
 	}
+
+	return vector;
+}
+
+template <typename TSeq, typename TSelector>
+auto operator|(TSeq&& source, Giters::GitersImpl::ToVectorSelect_t<TSelector>&& selector)
+{
+	using Elem_t = std::remove_const_t<std::remove_reference_t<decltype(std::invoke(selector.selector, *std::begin(source)))>>;
+
+	std::vector<Elem_t> vector;
+	vector.reserve(selector.initialCapacity);
+
+	for (auto&& elem : source)
+	{
+		vector.push_back(std::invoke(selector.selector, elem));
+	}
+
+	return vector;
 }
