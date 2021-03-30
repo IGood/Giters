@@ -129,7 +129,7 @@ for (const Widget& w : GetWidgets()) {
 }
 ```
 
-This informative because it provides us with all the details necessary to implement a solution that allows code like `B` instead of code like `A`...
+This is informative because it provides us with all the details necessary to implement a solution that allows code like `B` instead of code like `A`...
 
 ```cpp
 std::vector<Widget*> widgets = GetWidgets();
